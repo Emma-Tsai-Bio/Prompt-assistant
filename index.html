@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edubot - 校務 × 教學 AI 工作流助手 v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2563eb; --primary-light: #3b82f6; --primary-dark: #1e40af;
+      --bg-primary: #ffffff; --bg-secondary: #f8fafc;
+      --text-primary: #0f172a; --text-secondary: #475569; --text-tertiary: #94a3b8;
+      --border: #e2e8f0; --shadow-md: 0 4px 6px rgba(0,0,0,0.07); --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text-primary); background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); line-height: 1.6; }
+    header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 2rem 1.5rem; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-lg); }
+    .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 700; font-family: 'Sora', sans-serif; }
+    .nav-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .nav-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+    .nav-btn:hover { background: rgba(255,255,255,0.3); }
+    main { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
+    .breadcrumb { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .section-title { font-size: 1.1rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 1.25rem; }
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .cat-card { background: var(--bg-primary); border: 2px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+    .cat-card:hover { border-color: var(--primary); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+    .cat-card.active { border-color: var(--primary); background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(59,130,246,0.05)); }
+    .cat-icon { font-size: 1.75rem; color: var(--primary); margin-bottom: 0.75rem; }
+    .cat-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .cat-count { font-size: 0.8rem; color: var(--text-tertiary); margin-bottom: 0.5rem; }
+    .cat-badge { display: inline-block; font-size: 0.65rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; text-transform: uppercase; margin-top: 0.5rem; }
+    .badge-admin { background: rgba(59,130,246,0.15); color: #2563eb; }
+    .badge-teaching { background: rgba(16,185,129,0.15); color: #10b981; }
+    .badge-both { background: rgba(249,115,22,0.15); color: #f97316; }
+    .detail-panel { display: none; background: var(--bg-primary); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+    .detail-panel.active { display: block; animation: slideDown 0.4s ease; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; } }
+    .detail-title { font-size: 1.75rem; font-family: 'Sora', sans-serif; font-weight: 700; margin-bottom: 0.5rem; }
+    .detail-desc { font-size: 1rem; color: var(--text-secondary); margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--border); }
+    .scenario-chips { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.75rem; }
+    .chip { padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.3s; }
+    .chip:hover { border-color: var(--primary); }
+    .chip.active { background: var(--primary); color: white; }
+    .steps-container { margin-bottom: 2rem; }
+    .step-card { background: var(--bg-secondary); border-left: 4px solid var(--primary); border-radius: 8px; padding: 1.5rem 1.5rem 1.5rem 2rem; margin-bottom: 1.25rem; position: relative; }
+    .step-number { position: absolute; left: -18px; top: 1.5rem; width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: var(--shadow-md); }
+    .ai-label { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 600; margin-bottom: 0.75rem; margin-right: 0.5rem; }
+    .ai-label.claude { background: rgba(99,102,241,0.2); color: #4f46e5; }
+    .ai-label.gemini { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .ai-label.user { background: rgba(107,114,128,0.2); color: #6b7280; }
+    .step-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .step-desc { font-size: 0.95rem; color: var(--text-secondary); white-space: pre-wrap; margin-bottom: 1rem; line-height: 1.6; }
+    .prompt-box { background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(59,130,246,0.05)); border: 1px solid var(--primary); border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    .prompt-label { font-size: 0.8rem; font-weight: 600; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .prompt-field { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; max-height: 400px; overflow-y: auto; user-select: all; margin-bottom: 0.75rem; white-space: pre-wrap; word-wrap: break-word; }
+    .prompt-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn-small { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.3s; }
+    .btn-copy { background: var(--primary); color: white; }
+    .btn-copy:hover { background: var(--primary-dark); }
+    .btn-open { background: rgba(37,99,235,0.1); color: var(--primary); }
+    .btn-open:hover { background: rgba(37,99,235,0.2); }
+    .tip-box { background: rgba(16,185,129,0.1); border-left: 4px solid #10b981; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+    .faq-box { background: rgba(249,115,22,0.08); border-left: 4px solid #f97316; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+    .faq-title { font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
+    .faq-item { margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(249,115,22,0.2); }
+    .faq-item:last-child { border: none; }
+    .faq-q { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.25rem; }
+    .faq-a { font-size: 0.85rem; margin-left: 1.25rem; font-style: italic; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .modal.active { display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-content { background: var(--bg-primary); border-radius: 12px; padding: 2rem; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+    .modal-close { float: right; font-size: 1.5rem; font-weight: bold; cursor: pointer; background: none; border: none; color: var(--text-tertiary); padding: 0; }
+    .modal-close:hover { color: var(--text-primary); }
+    .modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; clear: both; }
+    .tool-options { display: grid; gap: 1rem; }
+    .tool-option { padding: 1.25rem; background: var(--bg-secondary); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+    .tool-option:hover { border-color: var(--primary); background: rgba(37,99,235,0.05); }
+    .tool-option-name { font-weight: 600; color: var(--text-primary); font-size: 1rem; margin-bottom: 0.25rem; }
+    .tool-option-desc { font-size: 0.85rem; color: var(--text-secondary); }
+    .notification { position: fixed; bottom: 2rem; right: 2rem; background: #10b981; color: white; padding: 1rem 1.5rem; border-radius: 8px; z-index: 999; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
+    @media (max-width: 768px) {
+      .cat-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+      .detail-panel { padding: 1.5rem; }
+      .detail-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="logo"><i class="fas fa-graduation-cap"></i><span>Edubot v3.0</span></div>
+      <div class="nav-buttons">
+        <button class="nav-btn" onclick="startOnboarding()"><i class="fas fa-book"></i> 新手引導</button>
+        <button class="nav-btn" onclick="openAboutModal()"><i class="fas fa-info-circle"></i> 關於</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><span><i class="fas fa-home"></i> 首頁</span><i class="fas fa-chevron-right"></i><span id="breadcrumb-cat">選擇分類</span></div>
+    <div class="section-title"><i class="fas fa-cubes"></i> 選擇工作情境</div>
+    <div class="cat-grid" id="catGrid"></div>
+    <div class="detail-panel" id="detailPanel">
+      <h1 class="detail-title" id="detailTitle"></h1>
+      <p class="detail-desc" id="detailDesc"></p>
+      <div class="scenario-chips" id="scenarioChips"></div>
+      <div class="steps-container" id="stepsContainer"></div>
+      <div class="tip-box" id="tipBox"></div>
+      <div class="faq-box" id="faqBox"></div>
+    </div>
+  </main>
+
+  <div id="onboardingModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeOnboarding()">×</button>
+      <h2 class="modal-title">👋 歡迎使用 Edubot v3.0</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Edubot 是一個 AI 工作流助手，幫助教職員快速完成校務與教學工作。只需 3 步就能使用！</p>
+      <div style="display: grid; gap: 1rem; margin: 1.5rem 0;">
+        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+          <div style="font-weight: 700; color: var(--primary); margin-bottom: 0.25rem;">📋 Step 1：選擇情境</div>
+          <div style="font-size: 0.95rem; color: var(--text-secondary);">點擊左邊的分類卡片，選擇你要做的工作</div>
+        </div>
+        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+          <div style="font-weight: 700; color: var(--primary); margin-bottom: 0.25rem;">📝 Step 2：複製 Prompt</div>
+          <div style="font-size: 0.95rem; color: var(--text-secondary);">點擊「複製」按鈕，複製工作流程中的提示詞</div>
+        </div>
+        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+          <div style="font-weight: 700; color: var(--primary); margin-bottom: 0.25rem;">🚀 Step 3：貼到 AI 工具</div>
+          <div style="font-size: 0.95rem; color: var(--text-secondary);">點擊 Claude、Gemini 等按鈕，自動帶著 Prompt 開啟 AI 工具</div>
+        </div>
+        
+        <div style="background: rgba(249,115,22,0.1); padding: 1rem; border-radius: 8px; border-left: 4px solid #f97316; margin-top: 0.5rem;">
+          <div style="font-weight: 700; color: #ea580c; margin-bottom: 0.25rem;">💡 溫馨小提醒：AI 工具可自由替換</div>
+          <div style="font-size: 0.95rem; color: var(--text-secondary);">工作流中標示的 AI（如 Claude、Gemini）僅為我們實測的最佳推薦。您完全可以選擇從頭到尾使用同一個 AI，或是改用您最習慣的工具哦！</div>
+        </div>
+      </div>
+      <button style="padding: 0.75rem 1.5rem; border: none; border-radius: 6px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; width: 100%; margin-top: 1rem;" onclick="closeOnboarding()">我已了解，開始使用</button>
+    </div>
+  </div>
+
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeAboutModal()">×</button>
+      <h2 class="modal-title">關於 Edubot v3.0</h2>
+      <p style="margin-bottom: 1rem;"><strong style="color: var(--text-primary);">Edubot</strong> 是為學校教職員設計的 AI 工作流引導工具。</p>
+      <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">它將常見的校務與教學工作分解成逐步的 AI 提示詞（Prompt），幫助教職員快速、正確地使用 AI 工具，大幅提升工作效率。</p>
+      <h3 style="color: var(--text-primary); font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem;">🏫 開發團隊</h3>
+      <p style="margin-bottom: 1.5rem;"><strong>雙園國中資訊組</strong></p>
+      <h3 style="color: var(--text-primary); font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem;">✨ 特色</h3>
+      <ul style="margin-left: 1.5rem; color: var(--text-secondary);"><li>10 大分類、24+ 個工作情境</li><li>每個情境都有逐步工作流</li><li>完整 Prompt 模板，一鍵複製</li><li>超連結直達各大 AI 工具</li><li>新手引導與常見問題解答</li><li>響應式設計，支援手機使用</li></ul>
+    </div>
+  </div>
+
+  <script>
+    const allCategories = [{"id":"docs","icon":"fa-solid fa-file-alt","name":"文件起草","desc":"公文、規章、會議紀錄的起草與格式化","badge":"admin","badgeLabel":"行政","scenarios":[{"id":"publicdoc","name":"公文 / 函文","tips":"先問架構再填內容，比一次要求完整草稿更精準。","faqs":[{"q":"為什麼 Claude 生成的公文格式不符合需求？","a":"在 Prompt 中更具體說明格式要求。"},{"q":"公文遺漏了重要內容怎麼辦？","a":"在法規核對步驟明確告訴 Claude：請檢查是否包含 XXX 項目。"}],"steps":[{"num":"1","ai":"claude","title":"說明目的與受文者","desc":"描述公文類型、發文對象、需要對方做什麼動作","prompt":"我需要起草一份公文。\n\n受文者：[填入]\n目的：[填入]\n需對方做的事：[知悉/回覆/出席]\n語氣要求：[正式/親切]\n\n請先建議架構，再生成完整公文格式草稿。"},{"num":"2","ai":"claude","title":"生成完整初稿","desc":"依台灣公文格式輸出主旨、說明、辦理事項","prompt":"請根據以下需求，生成完整的公文初稿。\n\n【公文架構】：\n[複製貼入 Step 1 的建議架構]\n\n【補充資訊】：\n[若有額外細節]\n\n請輸出完整公文。"},{"num":"3","ai":"claude","title":"法規核對","desc":"貼入相關法條，請 Claude 找矛盾與遺漏處","prompt":"以下是我起草的公文初稿，以及相關的法規條文。\n\n【我的公文草稿】：\n[貼入 Step 2 的輸出]\n\n【參考法規】：\n[貼入法規條文]\n\n請檢查是否有矛盾或遺漏。"},{"num":"4","ai":"user","title":"主管審核簽核","desc":"確認語氣與正確性後發文"}]},{"id":"meeting","name":"會議紀錄（含音檔轉文字）","tips":"使用 NotebookLM 或 Whisper 轉逐字稿，效果最佳。","toolRequired":true,"toolType":"audio_transcribe","faqs":[{"q":"音檔轉文字時，多人說話容易混亂怎麼辦？","a":"在逐字稿中手動標注發言人，幫 Claude 區分。"},{"q":"逐字稿有很多語助詞怎麼辦？","a":"在 Prompt 中要求 Claude：請移除所有語助詞。"}],"steps":[{"num":"1","ai":"tool","title":"音檔轉逐字稿","desc":"推薦：雅婷逐字稿、NotebookLM、Whisper"},{"num":"2","ai":"user","title":"初步整理逐字稿","desc":"刪除語助詞，標注發言人"},{"num":"3","ai":"claude","title":"格式化整理","desc":"依格式重整會議紀錄","prompt":"以下是本次會議的逐字稿，請整理成標準會議紀錄格式。\n\n請輸出：\n【出席人員】：\n【討論事項與各方意見】：\n【決議事項】：\n【待辦清單】：\n\n【逐字稿內容】：\n[貼入逐字稿]"},{"num":"4","ai":"claude","title":"萃取待辦清單","desc":"輸出可追蹤的表格格式","prompt":"請將待辦事項轉換成表格格式。\n\n【待辦原文】：\n[貼入內容]\n\n請輸出表格：\n序號 | 負責人 | 事項 | 期限"}]}]},{"id":"broadcast","icon":"fa-solid fa-megaphone","name":"公告、訊息製作","desc":"公文轉多平台、親師溝通、通知單製作","badge":"both","badgeLabel":"行政/教學","scenarios":[{"id":"multipost","name":"公文轉三平台貼文","tips":"三平台語氣差異大，一次請 Claude 全部生成。","faqs":[{"q":"粉絲團版本點擊率低？","a":"試試加上開場破題，先說吸引人的好處。"}],"steps":[{"num":"1","ai":"user","title":"準備原始公文或通知","desc":"將已完成的公文或通知單備妥"},{"num":"2","ai":"claude","title":"轉換三平台格式","desc":"生成 LINE、校網、粉絲團三種版本","prompt":"以下是一份公文，請改寫成三種平台格式。\n\n【原始內容】：\n[貼入公文全文]\n\n請分別輸出：\n\n① LINE 版\n（要求：口語、精簡、150字內）\n\n② 校網版\n（要求：正式、完整、200-300字）\n\n③ 粉絲團版\n（要求：吸睛破題、100-150字）"}]},{"id":"parent-message","name":"親師溝通訊息","tips":"請避免可能引起誤解的措辭。","faqs":[{"q":"家長誤解怎麼辦？","a":"預擬家長疑慮，並準備回覆話術。"}],"steps":[{"num":"1","ai":"claude","title":"起草親師溝通訊息","desc":"生成正式版與關懷版","prompt":"請幫我起草親師溝通訊息。\n\n【溝通事由】：[填入]\n【溝通目標】：[了解/配合/討論]\n【家長背景】：[一般/較強勢]\n【語氣需求】：[正式/溫和]\n\n請同時提供正式版與關懷版。"}]},{"id":"notification","name":"通知單製作","tips":"包含：時間、地點、注意事項、回條。","faqs":[{"q":"家長說沒看到通知怎麼辦？","a":"在最顯眼的地方標上重要，並在多平台重複發布。"}],"steps":[{"num":"1","ai":"claude","title":"撰寫通知單內文","desc":"根據給定對象生成相應的通知單","prompt":"請幫我撰寫給【導師/同仁/學生/家長】的通知單。\n\n【主旨】：[填入]\n【時間】：[填入]\n【地點】：[填入]\n【對象需做的事】：[簽名/準備物品/知悉]\n\n請輸出針對【對象】的通知單內文。"}]}]},{"id":"slides","icon":"fa-solid fa-presentation","name":"製作簡報","desc":"大綱規劃、Word/PDF 轉簡報、AI 直接生成","badge":"both","badgeLabel":"行政/教學","scenarios":[{"id":"slide-outline","name":"簡報大綱規劃","tips":"對象是誰最關鍵，上級長官版和家長版完全不同。","faqs":[{"q":"簡報過長怎麼辦？","a":"告訴 Claude：要在 XX 分鐘內講完，請精簡到 X 張。"}],"steps":[{"num":"1","ai":"claude","title":"列出簡報重點","desc":"說明用途、對象、時長與重點","prompt":"我要製作一份簡報，請規劃完整大綱。\n\n【主題】：[填入]\n【對象】：[教師/家長/上級/學生]\n【時長】：約 X 分鐘，X 張投影片\n【簡報重點】：[列出 3-5 個關鍵重點]\n\n請輸出每張投影片的標題、3 個重點、視覺建議。"},{"num":"2","ai":"claude","title":"逐頁文案與講稿","desc":"生成說明文字與口語備忘稿","prompt":"請撰寫簡報各頁詳細內容。\n\n【投影片大綱】：\n[複製 Step 1 輸出]\n\n請為每張投影片輸出：\n- 標題（10字內）\n- 重點 3-4 點\n- 講者備忘稿（80-120字）"}]},{"id":"word-to-slides","name":"Word/PDF 轉簡報","tips":"支援複製內容或上傳檔案兩種方式。","faqs":[{"q":"檔案很長，Claude 無法處理？","a":"分段處理：分成幾個部分，逐部分轉簡報。"},{"q":"邏輯不太對？","a":"在 Prompt 中加：請按照 XXX 的順序重新組織。"}],"steps":[{"num":"1","ai":"user","title":"準備 Word/PDF 檔案","desc":"上傳或複製檔案內容（支援兩種方式）"},{"num":"2","ai":"claude","title":"分析內容並建議大綱","desc":"分析關鍵資訊，建議簡報架構","prompt":"以下是 Word/PDF 文件，請轉換成簡報大綱。\n\n【用途】：[教師研習/家長說明會/校內報告]\n【對象】：[填入]\n【時長】：X 分鐘\n\n請幫我：\n1. 分析核心內容\n2. 建議簡報架構\n3. 列出可刪除的冗長段落\n\n【文件內容】：\n[貼入內容或描述上傳的檔案]"},{"num":"3","ai":"claude","title":"逐頁生成簡報文案","desc":"為每頁產出投影片標題、重點、講稿","prompt":"請根據大綱生成逐頁文案。\n\n【簡報大綱】：\n[複製 Step 2 輸出]\n\n【原始檔案】：\n[貼入供參考]\n\n請為每頁輸出投影片標題、重點、講者備忘稿。"},{"num":"4","ai":"user","title":"選擇完成方式：手動排版 或 AI 輔助生成","desc":"【方式 A】手動複製：將文案貼到 PowerPoint / Google Slides 調整排版。\n【方式 B】AI 生成：使用下方工具直接轉為視覺簡報。","has_tool_choice":true,"tools":[{"name":"✨ Gemini","prompt":"請根據以下簡報文案，幫我規劃 Google Slides 的排版方式。\n\n【簡報文案】：\n[貼入 Step 3 的輸出]\n\n請提供：\n- 建議的投影片版型（標題版、正文版、圖文版等）\n- 色調與字型搭配\n- 各頁的視覺元素建議（圖片/圖表/圖示方向）","url":"https://gemini.google.com"},{"name":"🎨 Canva AI","prompt":"在 Canva 中使用 AI 功能，告訴它：\n\n請根據以下文案內容生成一份簡報。\n\n【簡報文案】：\n[貼入 Step 3 的輸出]\n\n要求簡潔專業風格。","url":"https://www.canva.com"},{"name":"📓 NotebookLM","prompt":"在 NotebookLM 中：\n\n1. 上傳或貼入 Step 3 的簡報文案檔案\n\n2. 告訴 NotebookLM：\n   請根據這份文案生成簡報版本，\n   並自動建議視覺排版。","url":"https://notebooklm.google.com"}]}]}]},{"id":"cards","icon":"fa-solid fa-images","name":"製作圖卡","desc":"宣導圖卡與宣傳圖卡文案設計","badge":"both","badgeLabel":"行政/教學","scenarios":[{"id":"card-awareness","name":"宣導圖卡","tips":"最忌文字太多，生成後問 Claude：有沒有超過 50 字？","faqs":[{"q":"學生看不懂？","a":"加入生活化例子。例如不說尼古丁，改說香菸會讓你跑步變慢。"}],"steps":[{"num":"1","ai":"claude","title":"宣導文案設計","desc":"撰寫正確易懂、行動明確的文案","prompt":"我要製作宣導圖卡，請幫我撰寫文案。\n\n【主題】：[如霸凌防制/防疫衛教]\n【對象】：[學生/家長]\n【風格】：[沉穩正式/友善親切]\n\n每張圖卡請輸出：\n- 主標題（8字內）\n- 副標題（20字內）\n- 正文 3 點\n- 版面建議"}]},{"id":"card-promotion","name":"宣傳圖卡","tips":"宣傳重情感，宣導重正確。語氣差很大。","faqs":[{"q":"沒人分享怎麼辦？","a":"加入稀有性或好處。例如只有前 50 名，或報名送禮物。"}],"steps":[{"num":"1","ai":"claude","title":"宣傳文案撰寫","desc":"撰寫吸睛、有情感、有行動呼籲的文案","prompt":"我要製作活動宣傳圖卡，請撰寫推廣文案。\n\n【活動名稱】：[填入]\n【日期/時間/地點】：[填入]\n【活動亮點】：[填入 2-3 個]\n【受眾】：[學生/家長]\n\n請輸出：\n- 主視覺標語\n- 副標題\n- 活動資訊\n- 行動呼籲"}]}]},{"id":"docintegration","icon":"fa-solid fa-folder-open","name":"文件統整","desc":"文件整理、資料整理、目錄生成、重點分析","badge":"both","badgeLabel":"行政/教學","scenarios":[{"id":"data-organize","name":"資料整理","tips":"目的是把混亂的原始資料轉化成結構化、可操作的表格。","faqs":[{"q":"資料太混亂，不知怎麼分類？","a":"先告訴 Claude 現在有什麼資料，想達到什麼目的。"}],"steps":[{"num":"1","ai":"claude","title":"分析與提出分類方案","desc":"上傳混亂資料，Claude 建議分類方案","prompt":"我有份混亂資料想整理。請規劃分類方案。\n\n【資料類型】：[清單/報名表/盤點]\n【分類方式】：[按狀態/位置/優先度]\n\n原始資料：\n[貼入]\n\n請提出：\n1. 建議幾個工作表\n2. 每個工作表的欄位\n3. 清理時的注意事項"},{"num":"2","ai":"claude","title":"清理與轉換格式","desc":"按方案清理資料，輸出可貼入 Sheets 的格式","prompt":"請根據分類方案清理資料。\n\n【分類方案】：\n[貼入 Step 1 輸出]\n\n【原始資料】：\n[貼入]\n\n請輸出可直接貼入 Google Sheets 的表格（Tab 分隔）。"}]},{"id":"doc-toc","name":"目錄與頁次對照","tips":"PDF 若無法貼文字，用 Adobe Acrobat 免費版匯出為 Word。","faqs":[{"q":"文件太長，Claude 無法處理？","a":"分段處理：分成幾部分，逐部分整理，最後合併。"}],"steps":[{"num":"1","ai":"claude","title":"生成目錄與索引","desc":"識別章節，輸出層次目錄、頁次、摘要","prompt":"以下是文件全文，請整理完整目錄與索引。\n\n【文件類型】：[計畫書/法規/報告]\n\n請輸出：\n1. 層次目錄（大標/小標縮排，標註頁次）\n2. 每個章節的一句話摘要\n3. 標記最需關注的 3 個章節\n\n【文件內容】：\n[貼入]"}]},{"id":"doc-analysis","name":"重點分析與擬辦","tips":"分析法規時加：請特別標注本校未遵守可能面臨的風險。","faqs":[{"q":"法規條文很複雜，不知道對學校的影響？","a":"在 Prompt 中明確說：用簡單白話說明對一所國中的實際影響。"}],"steps":[{"num":"1","ai":"claude","title":"分析重點與擬辦","desc":"摘要重點、分析影響、生成行動清單","prompt":"以下是法規或政策文件，請分析並擬定後續行動。\n\n請輸出：\n1. 核心重點摘要（5-8 點）\n2. 對本校的具體影響\n3. 潛在風險或需特別注意的條款\n4. 後續擬辦事項（負責人|事項|期限）\n\n【文件內容】：\n[貼入]"}]}]},{"id":"auto","icon":"fa-solid fa-gears","name":"自動化工具","desc":"試算表自動化 (GAS)，提升行政工作效率","badge":"admin","badgeLabel":"行政","scenarios":[{"id":"gas-automate","name":"試算表自動化 (GAS)","tips":"GAS 可自動化 Google Sheets 和 Forms 的工作流程。","faqs":[{"q":"程式碼執行後沒反應？","a":"檢查：工作表名稱是否相符、欄位位置是否正確、是否授權。"},{"q":"不會寫程式碼？","a":"工具會幫你生成完整程式碼，你只需複製貼上，修改參數。"}],"steps":[{"num":"1","ai":"claude","title":"規劃自動化流程","desc":"說明需求，Claude 規劃工作流與框架","prompt":"我想用 GAS 自動化一個工作流程。請幫我規劃。\n\n【現況描述】：[例如目前用人工複製貼上]\n【想自動化的流程】：[填入]\n【觸發條件】：[表單提交時/每週一 8 點]\n\n請輸出：\n1. 工作流程圖\n2. 建議用 GAS 的哪個功能\n3. 需要設定的關鍵變數"},{"num":"2","ai":"claude","title":"生成完整程式碼","desc":"產出可直接複製貼入的程式碼","prompt":"請生成完整的 GAS 程式碼。\n\n【工作流定義】：\n[複製 Step 1 輸出]\n\n【工作表結構】：\n[說明工作表名稱、欄位等]\n\n請生成可直接複製的 JavaScript 程式碼，\n需修改的參數用 *** 標示。"}]}]},{"id":"classmanagement","icon":"fa-solid fa-users","name":"成績與評語","desc":"成績分析、學生期末評語、班級數據管理","badge":"teaching","badgeLabel":"教學","scenarios":[{"id":"score-analysis","name":"成績 / 出缺勤統計","tips":"Gemini 擅長在試算表內操作；Claude 擅長解讀數字背後的意義。","faqs":[{"q":"怎樣判斷進步還是退步？","a":"告訴 Claude 你的評判標準，例如進步超過 5 分。"}],"steps":[{"num":"1","ai":"gemini","title":"在 Google Sheets 分析","desc":"資料在 Sheets，用 Gemini 側欄提問統計"},{"num":"2","ai":"claude","title":"詮釋數字背後意義","desc":"分析原因與建議","prompt":"以下是班級成績/出缺勤資料摘要，請幫我分析。\n\n請輸出：\n1. 整體表現趨勢\n2. 需特別關注的學生群體\n3. 可能的成因分析\n4. 建議的輔導介入方式\n\n【資料摘要】：\n[貼入]"}]},{"id":"student-comments","name":"學生期末評語","tips":"評語要既符合整體風格，又有個別特色。可提供過去範例或描述風格。","faqs":[{"q":"評語到後面開始重複？","a":"告訴 Claude：每位學生評語要有不同重點，並舉例差異化。"},{"q":"某位學生評語太負面？","a":"在 Prompt 調整：用正向積極角度描述改進方向。"}],"steps":[{"num":"1","ai":"claude","title":"風格與框架設定","desc":"上傳過去範例或手動描述，Claude 萃取框架","prompt":"請幫我設定期末評語的風格與框架。\n\n【方式一：上傳過去範例】\n[貼入 2-3 份過去評語]\n\n【方式二：手動描述】\n希望風格：[溫暖鼓勵/正向積極]\n\n請萃取風格特徵，提出模板。"},{"num":"2","ai":"claude","title":"批次生成全班評語","desc":"根據模板與關鍵詞，逐生生成評語","prompt":"請根據模板與學生資料，批次生成評語。\n\n【評語模板】：\n[複製 Step 1]\n\n【全班名單與關鍵詞】：\n座號 | 姓名 | 性別 | 關鍵詞\n1    | 小王 | 男   | 認真、數學強\n2    | 小美 | 女   | 活潑、美勞創意\n...\n\n請逐生生成個別化評語。"},{"num":"3","ai":"claude","title":"個別調整","desc":"針對特定學生微調語氣與內容","prompt":"請調整以下學生的評語。\n\n【原評語】：\n[貼入]\n\n【調整需求】：\n[例：加強鼓勵/減少負面]\n\n請保持風格，針對性微調。"}]}]},{"id":"teaching","icon":"fa-solid fa-book-open","name":"課程規劃與教案","desc":"教材設計、考題生成、教學活動、主題課程、逐週教案","badge":"teaching","badgeLabel":"教學","scenarios":[{"id":"material-design","name":"教材設計","tips":"提供學生常見的錯誤概念，Claude 會針對性設計澄清。","faqs":[{"q":"教材太深奧？","a":"加入生活化例子。告訴 Claude：學生會問 XXX，請預先解釋。"}],"steps":[{"num":"1","ai":"claude","title":"教材內容設計","desc":"確認目標、規劃架構、生成完整教材","prompt":"請幫我設計教學教材。\n\n【科目/單元】：[填入]\n【年級】：[填入]\n【學習目標】：[填入 2-3 個]\n【學生常見錯誤概念】：[填入]\n\n請輸出：\n1. 概念說明（含例子與類比）\n2. 重點整理框\n3. 自我檢核小題 2-3 題"}]},{"id":"exam-generation","name":"考題生成","tips":"生成後問 Claude：有沒有題意不清、答案有爭議的題目？","faqs":[{"q":"考題太簡單或太難？","a":"告訴 Claude：請調整難度，讓 60% 學生能得到 70 分。"}],"steps":[{"num":"1","ai":"claude","title":"生成測驗卷","desc":"指定範圍、題型、難度，產出完整考卷","prompt":"請幫我出一份測驗卷。\n\n【單元/範圍】：[填入]\n【年級】：[填入]\n【題型比例】：\n  選擇 X% 、填充 X% 、問答 X%\n【難度分布】：\n  基礎 X% 、應用 X% 、挑戰 X%\n【作答時間】：X 分鐘\n\n請輸出題目、標準答案、評分重點。"}]},{"id":"activity-design","name":"教學活動設計","tips":"說明教室條件(有無電腦、座位)和學生特質，活動會更可行。","faqs":[{"q":"學生在活動中不專心？","a":"加入競賽、計分或小獎勵。告訴 Claude：學生坐不住，需高互動性。"}],"steps":[{"num":"1","ai":"claude","title":"設計教學活動","desc":"規劃流程、設計活動、列出評量指標","prompt":"請幫我設計課堂教學活動。\n\n【科目/單元】：[填入]\n【年級】：[填入]\n【學習目標】：[填入]\n【可用時間】：X 分鐘\n【教室條件】：\n  [有/無電腦、座位可/不可移動]\n\n請輸出：\n- 活動名稱\n- 理念\n- 逐步流程\n- 教師提問\n- 學生活動\n- 評量指標"}]},{"id":"theme-curriculum","name":"主題課程規劃","tips":"需要跨領域整合，包含科學、社會、藝術等多面向。","faqs":[{"q":"課程設計好了，缺少教案？","a":"完成後點擊「逐週教案細化」，逐週產出詳細教案。"}],"steps":[{"num":"1","ai":"claude","title":"課程規劃與大綱","desc":"分析課綱、建議週數、規劃各週主軸","prompt":"我要規劃跨領域主題課程。請幫我分析與規劃。\n\n【課程主題】：[填入]\n【課綱要求】：[貼入課綱條文]\n【現有資源】：\n  [教科書、線上資源、校園資源]\n【班級特性】：\n  [年級、人數、特殊需求]\n【時間限制】：X 週，每週 Y 堂\n\n請輸出課程週數與各週主軸。"},{"num":"2","ai":"claude","title":"各週學習目標細化","desc":"為每週設定核心概念、學習目標、評量方式","prompt":"請細化各週的學習目標與評量方式。\n\n【課程規劃】：\n[複製 Step 1 輸出]\n\n請為每週輸出：\n- 核心概念\n- 學習目標\n- 評量方式"}]},{"id":"weekly-lesson-plan","name":"逐週教案細化","tips":"應包含每堂課完整流程：引入、教學、活動、總結，時間精確到分鐘。","faqs":[{"q":"教案太繁瑣？","a":"告訴 Claude：濃縮成 1 頁 A4 備忘單，含時間分配和關鍵提問。"}],"steps":[{"num":"1","ai":"claude","title":"單週詳細教案","desc":"產出一週(4-5 堂課)完整教案","prompt":"請為課程第 X 週產出完整教案。\n\n【課程名稱】：[填入]\n【第 X 週主軸】：[填入]\n【教室條件】：\n  [有/無電腦、學生數]\n【本週課數】：X 堂\n\n請為每堂課輸出：\n- 教學目標\n- 準備物品\n- 課程流程（含時間）\n- 教師提問\n- 學生活動"},{"num":"2","ai":"claude","title":"逐週遞進教案","desc":"為下一週產出銜接課程的教案","prompt":"請為第 X+1 週產出教案，銜接前一週學習。\n\n【前一週成果】：\n[複製前週輸出]\n\n【第 X+1 週主軸】：[填入]\n\n請產出完整下一週教案。"}]}]},{"id":"events","icon":"fa-solid fa-calendar-days","name":"活動企劃","desc":"校慶、運動會、招生說明會企劃","badge":"both","badgeLabel":"行政/教學","scenarios":[{"id":"event-plan","name":"活動企劃書","tips":"ChatGPT 發想創意、Claude 寫正式文件、Gemini 管資料。","faqs":[{"q":"預算有限，怎樣辦出好活動？","a":"在 Prompt 詳細說明預算限制，Claude 會幫你優先安排最重要項目。"}],"steps":[{"num":"1","ai":"claude","title":"撰寫活動企劃書","desc":"目標、流程、人力、預算、注意事項","prompt":"我要規劃學校活動，請幫我撰寫企劃書。\n\n【活動名稱/類型】：[填入]\n【日期與地點】：[填入]\n【預估規模】：約 X 人\n【預算範圍】：[填入]\n【特殊需求】：\n  [報教育局/有外賓/其他]\n\n請輸出：\n- 活動目標\n- 流程時間軸\n- 人力分工\n- 預算項目\n- 注意事項"}]}]},{"id":"search","icon":"fa-solid fa-magnifying-glass","name":"即時查詢","desc":"教育政策、議題新聞、教材教案資源查詢","badge":"both","badgeLabel":"行政/教學","scenarios":[{"id":"policy-search","name":"教育政策查詢","tips":"Gemini 找資料快，查完務必點入原始連結自行核對。","faqs":[{"q":"政策很多版本，怎樣找到最新的？","a":"在 Prompt 加上：請確認這是最新版本，列出所有修正重點。"}],"steps":[{"num":"1","ai":"gemini","title":"搜尋最新政策","desc":"用 Gemini 搜尋最新公告，獲取摘要與連結"},{"num":"2","ai":"claude","title":"分析影響與建議","desc":"分析對本校的具體影響","prompt":"請分析以下教育部政策對本校的具體影響。\n\n【政策名稱】：[填入]\n【本校類型】：[國小/國中/高中]\n\n請說明：\n1. 哪些處室需因應\n2. 需在何時完成哪些準備\n3. 有哪些細節需特別注意\n4. 未遵守可能面臨的風險\n\n【政策內容】：\n[貼入]"}]},{"id":"news-search","name":"議題資料/相關新聞查詢","tips":"搜尋時事議題，幫助掌握校園相關的社會話題。","faqs":[{"q":"新聞太多，怎樣找到最相關的？","a":"告訴 Claude：只保留與【主題】相關度最高的 3-5 則新聞。"}],"steps":[{"num":"1","ai":"gemini","title":"搜尋議題相關新聞","desc":"用 Gemini 搜尋近期議題新聞，獲取摘要與連結"},{"num":"2","ai":"claude","title":"分析議題與教學應用","desc":"整理新聞內容，規劃教學應用方向","prompt":"以下是與【議題】相關的新聞摘要，請幫我整理。\n\n【議題主題】：[填入]\n【教學年級】：[填入]\n【希望的角度】：[社會/科學/人生議題/其他]\n\n請輸出：\n1. 議題背景說明\n2. 核心爭點分析\n3. 多角度觀點整理\n4. 可運用於教學的方向\n\n【相關新聞摘要】：\n[貼入]"}]},{"id":"teaching-resources","name":"教材教案搜尋","tips":"搜尋國內教材平台：均一、因材網、ShareClass 等資源。","faqs":[{"q":"平台那麼多，怎樣快速找到合適教材？","a":"告訴 Claude：年級、科目、單元、學習目標，它會幫你篩選。"}],"steps":[{"num":"1","ai":"user","title":"決定搜尋條件","desc":"確認要搜尋的教材需求"},{"num":"2","ai":"claude","title":"規劃搜尋策略","desc":"建議適合搜尋的平台和關鍵詞","prompt":"我想在線上平台搜尋教材。請幫我規劃。\n\n【科目】：[填入]\n【年級/班級】：[填入]\n【單元名稱】：[填入]\n【教材類型】：[課程、習題、影片、教案]\n【特殊需求】：[差異化、補救、延伸]\n\n【推薦搜尋平台】：\n- 均一教育平台（https://www.junyiacademy.org/）\n- 因材網（https://adl.edu.tw/）\n- ShareClass（線上教學資源平台）\n\n請建議用什麼關鍵詞在各平台搜尋，\n以及預期能找到什麼教材。"},{"num":"3","ai":"user","title":"前往平台搜尋","desc":"根據建議進入平台搜尋教材"},{"num":"4","ai":"claude","title":"整理教材清單","desc":"將找到的教材編列成清單，評估適用性","prompt":"以下是我在【平台名稱】找到的教材清單。\n\n教材 1：[標題]\n教材 2：[標題]\n...\n\n【我的需求】：\n[複製 Step 1 的需求]\n\n請幫我：\n1. 評估各教材與需求的符合度\n2. 建議教學應用順序\n3. 指出可能的搭配組合"}]}]}];
+
+    let currentCat = null, currentScenario = 0;
+    let onboardingShown = localStorage.getItem('edubot_onboarding_shown');
+
+    function init() {
+      renderCategoryGrid();
+      if (!onboardingShown) {
+        setTimeout(() => startOnboarding(), 500);
+        localStorage.setItem('edubot_onboarding_shown', 'true');
+      }
+    }
+
+    function renderCategoryGrid() {
+      const grid = document.getElementById('catGrid');
+      grid.innerHTML = allCategories.map((cat, idx) => `
+        <div class="cat-card${currentCat === idx ? ' active' : ''}" onclick="selectCategory(${idx})">
+          <i class="fas ${cat.icon} cat-icon"></i>
+          <div class="cat-name">${cat.name}</div>
+          <div class="cat-count">${cat.scenarios.length} 個情境</div>
+          <div class="cat-badge badge-${cat.badge}">${cat.badgeLabel}</div>
+        </div>
+      `).join('');
+    }
+
+    function selectCategory(idx) {
+      currentCat = idx;
+      currentScenario = 0;
+      renderCategoryGrid();
+      renderDetailPanel();
+    }
+
+    function renderDetailPanel() {
+      const cat = allCategories[currentCat];
+      document.getElementById('breadcrumb-cat').textContent = cat.name;
+      document.getElementById('detailTitle').textContent = cat.name;
+      document.getElementById('detailDesc').textContent = cat.desc;
+      renderScenarioChips();
+      renderSteps();
+    }
+
+    function renderScenarioChips() {
+      const cat = allCategories[currentCat];
+      const chips = document.getElementById('scenarioChips');
+      chips.innerHTML = cat.scenarios.map((s, idx) => `
+        <span class="chip${currentScenario === idx ? ' active' : ''}" onclick="selectScenario(${idx})">${s.name}</span>
+      `).join('');
+    }
+
+    function selectScenario(idx) {
+      currentScenario = idx;
+      renderScenarioChips();
+      renderSteps();
+    }
+
+    function renderSteps() {
+      const scenario = allCategories[currentCat].scenarios[currentScenario];
+      const container = document.getElementById('stepsContainer');
+      let html = '';
+
+      scenario.steps.forEach((step, idx) => {
+        const aiColor = step.ai === 'claude' ? 'claude' : step.ai === 'gemini' ? 'gemini' : 'user';
+        const aiName = step.ai === 'claude' ? 'Claude' : step.ai === 'gemini' ? 'Gemini' : '人工';
+
+        if (step.ai !== 'user') {
+          html += `<div class="step-card"><div class="step-number">${step.num}</div>`;
+          html += `<a class="ai-label ${aiColor}" href="${getAIUrl(step.ai)}" target="_blank">${aiName} <i class="fas fa-external-link-alt"></i></a>`;
+        } else {
+          html += `<div class="step-card"><div class="step-number">${step.num}</div><span class="ai-label user">人工</span>`;
+        }
+
+        html += `<div class="step-title">${step.title}</div><div class="step-desc">${step.desc}</div>`;
+
+        if (step.prompt) {
+          html += `<div class="prompt-box"><div class="prompt-label"><i class="fas fa-wand-magic-sparkles"></i> Prompt</div><div class="prompt-field">${step.prompt}</div>`;
+          html += `<div class="prompt-actions"><button class="btn-small btn-copy" onclick="copyText(\`${step.prompt.replace(/`/g, '\\`')}\`)"><i class="fas fa-copy"></i> 複製</button>`;
+          if (step.ai !== 'user') {
+            html += `<a href="${getAIUrl(step.ai)}" target="_blank" class="btn-small btn-open"><i class="fas fa-arrow-up-right-from-square"></i> 在 ${aiName} 開啟</a>`;
+          }
+          html += `</div></div>`;
+        }
+
+        if (step.has_tool_choice && step.tools) {
+          html += `<div style="margin-top: 1rem; padding: 1rem; background: rgba(37,99,235,0.05); border-radius: 8px; border: 1px solid rgba(37,99,235,0.2);">`;
+          html += `<div style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">選擇簡報生成工具：</div>`;
+          step.tools.forEach(tool => {
+            html += `<div style="margin-bottom: 0.75rem;"><button class="btn-small btn-open" onclick="openToolPrompt('${tool.name}', \`${tool.prompt.replace(/`/g, '\\`')}\`)"><i class="fas fa-arrow-right"></i> ${tool.name}</button></div>`;
+          });
+          html += `</div>`;
+        }
+
+        html += `</div>`;
+      });
+
+      container.innerHTML = html;
+
+      document.getElementById('tipBox').innerHTML = `<i class="fas fa-lightbulb"></i> <strong>提示：</strong> ${scenario.tips}`;
+
+      const faqBox = document.getElementById('faqBox');
+      if (scenario.faqs && scenario.faqs.length > 0) {
+        faqBox.innerHTML = `<div class="faq-title"><i class="fas fa-circle-question"></i> 常見問題</div>`;
+        faqBox.innerHTML += scenario.faqs.map(faq => `
+          <div class="faq-item"><div class="faq-q">❓ ${faq.q}</div><div class="faq-a">💡 ${faq.a}</div></div>
+        `).join('');
+      } else {
+        faqBox.innerHTML = '';
+      }
+
+      document.getElementById('detailPanel').classList.add('active');
+    }
+
+    function getAIUrl(ai) {
+      const urls = { 'claude': 'https://claude.ai', 'gemini': 'https://gemini.google.com', 'chatgpt': 'https://chatgpt.com' };
+      return urls[ai] || 'https://claude.ai';
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const notif = document.createElement('div');
+        notif.className = 'notification';
+        notif.textContent = '✅ 已複製到剪貼簿！';
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 3000);
+      });
+    }
+
+    function openToolPrompt(toolName, prompt) {
+      alert(`📋 ${toolName} 的 Prompt 已複製到剪貼簿，請貼到 ${toolName} 中使用。\n\n${prompt}`);
+      copyText(prompt);
+    }
+
+    function startOnboarding() { document.getElementById('onboardingModal').classList.add('active'); }
+    function closeOnboarding() { document.getElementById('onboardingModal').classList.remove('active'); }
+    function openAboutModal() { document.getElementById('aboutModal').classList.add('active'); }
+    function closeAboutModal() { document.getElementById('aboutModal').classList.remove('active'); }
+
+    window.onclick = function(event) {
+      ['onboardingModal', 'aboutModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (event.target === modal) modal.classList.remove('active');
+      });
+    };
+
+    init();
+  </script>
+</body>
+</html>
