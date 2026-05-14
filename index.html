@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -66,11 +68,20 @@
     .ai-label.chatgpt { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
     .ai-label.user { background: rgba(107,114,128,0.2); color: #6b7280; cursor: default; }
 
-    .step-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .step-desc { font-size: 0.95rem; color: var(--text-secondary); white-space: pre-wrap; margin-bottom: 1rem; line-height: 1.6; }
+    .step-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+    
+    /* Markdown 專屬樣式設定 */
+    .markdown-body { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; }
+    .markdown-body p { margin-bottom: 0.5rem; }
+    .markdown-body p:last-child { margin-bottom: 0; }
+    .markdown-body strong { font-weight: 700; color: var(--primary-dark); }
+    .markdown-body ul, .markdown-body ol { margin-left: 1.5rem; margin-bottom: 0.8rem; margin-top: 0.3rem; }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 { color: var(--text-primary); margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600; }
+    .markdown-body h3 { font-size: 1.1rem; }
+
     .prompt-box { background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(59,130,246,0.05)); border: 1px solid var(--primary); border-radius: 8px; padding: 1rem; margin: 1rem 0; }
     .prompt-label { font-size: 0.8rem; font-weight: 600; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; }
-    .prompt-field { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; max-height: 400px; overflow-y: auto; user-select: all; margin-bottom: 0.75rem; white-space: pre-wrap; word-wrap: break-word; }
+    .prompt-field { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; max-height: 400px; overflow-y: auto; user-select: all; margin-bottom: 0.75rem; white-space: pre-wrap; word-wrap: break-word; color: var(--text-primary); }
     .prompt-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .btn-small { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.3s; }
     .btn-copy { background: var(--primary); color: white; }
@@ -78,7 +89,6 @@
     .btn-open { background: rgba(37,99,235,0.1); color: var(--primary); text-decoration: none; }
     .btn-open:hover { background: rgba(37,99,235,0.2); }
     
-    /* 實作案例按鈕 (調整 Margin，讓它放在最上面時不會卡卡的) */
     .btn-case-study { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; width: 100%; justify-content: center; }
     .btn-case-study:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 
@@ -190,11 +200,12 @@
     <div class="modal-content large">
       <button class="modal-close" onclick="closeCaseStudyModal()">×</button>
       <h2 class="modal-title" id="caseStudyTitle">實作案例</h2>
-      <div id="caseStudyContent" style="white-space: pre-wrap; line-height: 1.8; color: var(--text-secondary); font-size: 0.95rem;"></div>
+      <div id="caseStudyContent" class="markdown-body"></div>
     </div>
   </div>
 
   <script>
+    // 這裡替換為您的專屬 Google Apps Script API 網址
     const API_URL = "https://script.google.com/macros/s/AKfycbxiuGkc8M7e4I4K75bqN9WPgFBxaVQgPv2ARLsHsko-NgrrtBeA-h7O6vPa2TYAJI4/exec";
     
     let allCategories = [];
@@ -284,7 +295,7 @@
       const container = document.getElementById('stepsContainer');
       let html = '';
 
-      // --- 變更點：將實作案例按鈕移至最上方 ---
+      // 在最上方產生「實作案例」按鈕 (如果有資料的話)
       if (scenario.caseStudy && scenario.caseStudy.toString().trim() !== '') {
          html += `<button class="btn-case-study" onclick="openCaseStudyModal()">
                     <i class="fas fa-book-open"></i> ${scenario.name} - 實作案例
@@ -325,7 +336,10 @@
           html += `<a class="ai-label ${aiColor}" href="${finalUrl}" target="_blank">${aiName} <i class="fas fa-external-link-alt"></i></a>`;
         }
 
-        html += `<div class="step-title">${step.title}</div><div class="step-desc">${step.desc}</div>`;
+        html += `<div class="step-title">${step.title}</div>`;
+        
+        // 這裡將 step.desc 放入 Markdown 解析器
+        html += `<div class="step-desc markdown-body">${marked.parse(step.desc || '')}</div>`;
 
         if (step.has_tool_choice && step.tools) {
           html += `<div style="margin-top: 1rem; padding: 1rem; background: rgba(37,99,235,0.05); border-radius: 8px; border: 1px solid rgba(37,99,235,0.2);">`;
@@ -336,6 +350,7 @@
           html += `</div>`;
         }
 
+        // Prompt 區塊保持純文字 (不要轉 Markdown)
         if (step.prompt) {
           html += `<div class="prompt-box"><div class="prompt-label"><i class="fas fa-wand-magic-sparkles"></i> Prompt</div><div class="prompt-field">${step.prompt}</div>`;
           html += `<div class="prompt-actions"><button class="btn-small btn-copy" onclick="copyText(\`${step.prompt.replace(/`/g, '\\`')}\`)"><i class="fas fa-copy"></i> 複製</button>`;
@@ -380,18 +395,16 @@
       });
     }
 
-    // Modal 控制
     function startOnboarding() { document.getElementById('onboardingModal').classList.add('active'); }
     function closeOnboarding() { document.getElementById('onboardingModal').classList.remove('active'); }
     function openAboutModal() { document.getElementById('aboutModal').classList.add('active'); }
     function closeAboutModal() { document.getElementById('aboutModal').classList.remove('active'); }
     
-    // --- 變更點：直接從全域變數讀取內容，避免文字內引號干擾 ---
+    // 實作案例 Modal (同樣套用 Markdown 解析)
     function openCaseStudyModal() {
       const scenario = allCategories[currentCat].scenarios[currentScenario];
       document.getElementById('caseStudyTitle').textContent = scenario.name + ' - 實作案例';
-      // 將換行符號取代成 HTML 的 <br> 標籤
-      const content = scenario.caseStudy.toString().replace(/\n/g, '<br>');
+      const content = marked.parse(scenario.caseStudy.toString() || '');
       document.getElementById('caseStudyContent').innerHTML = content;
       document.getElementById('caseStudyModal').classList.add('active');
     }
