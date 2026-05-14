@@ -78,8 +78,8 @@
     .btn-open { background: rgba(37,99,235,0.1); color: var(--primary); text-decoration: none; }
     .btn-open:hover { background: rgba(37,99,235,0.2); }
     
-    /* 實作案例按鈕 */
-    .btn-case-study { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; width: 100%; justify-content: center; }
+    /* 實作案例按鈕 (調整 Margin，讓它放在最上面時不會卡卡的) */
+    .btn-case-study { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; width: 100%; justify-content: center; }
     .btn-case-study:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 
     .tip-box { background: rgba(16,185,129,0.1); border-left: 4px solid #10b981; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
@@ -284,6 +284,13 @@
       const container = document.getElementById('stepsContainer');
       let html = '';
 
+      // --- 變更點：將實作案例按鈕移至最上方 ---
+      if (scenario.caseStudy && scenario.caseStudy.toString().trim() !== '') {
+         html += `<button class="btn-case-study" onclick="openCaseStudyModal()">
+                    <i class="fas fa-book-open"></i> ${scenario.name} - 實作案例
+                  </button>`;
+      }
+
       scenario.steps.forEach((step, idx) => {
         let rawAi = step.ai ? step.ai.toString().trim() : 'user';
         let aiName = rawAi;
@@ -340,15 +347,6 @@
         html += `</div>`;
       });
       
-      // 生成實作案例按鈕 (如果有的話)
-      if (scenario.caseStudy && scenario.caseStudy.trim() !== '') {
-         // 把內容轉義存放在屬性中，避免引號衝突
-         const safeCaseStudy = scenario.caseStudy.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\n/g, '\\n');
-         html += `<button class="btn-case-study" onclick="openCaseStudyModal('${scenario.name}', '${safeCaseStudy}')">
-                    <i class="fas fa-book-open"></i> ${scenario.name} - 實作案例
-                  </button>`;
-      }
-
       container.innerHTML = html;
       
       if (scenario.tips) {
@@ -388,9 +386,13 @@
     function openAboutModal() { document.getElementById('aboutModal').classList.add('active'); }
     function closeAboutModal() { document.getElementById('aboutModal').classList.remove('active'); }
     
-    function openCaseStudyModal(title, content) {
-      document.getElementById('caseStudyTitle').textContent = title + ' - 實作案例';
-      document.getElementById('caseStudyContent').innerHTML = content.replace(/\\n/g, '<br>');
+    // --- 變更點：直接從全域變數讀取內容，避免文字內引號干擾 ---
+    function openCaseStudyModal() {
+      const scenario = allCategories[currentCat].scenarios[currentScenario];
+      document.getElementById('caseStudyTitle').textContent = scenario.name + ' - 實作案例';
+      // 將換行符號取代成 HTML 的 <br> 標籤
+      const content = scenario.caseStudy.toString().replace(/\n/g, '<br>');
+      document.getElementById('caseStudyContent').innerHTML = content;
       document.getElementById('caseStudyModal').classList.add('active');
     }
     function closeCaseStudyModal() { document.getElementById('caseStudyModal').classList.remove('active'); }
