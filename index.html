@@ -25,7 +25,6 @@
     .nav-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; color: white; cursor: pointer; font-weight: 500; transition: all 0.3s; display: flex; align-items: center; gap: 0.3rem; }
     .nav-btn:hover { background: rgba(255,255,255,0.3); }
     
-    /* 下拉選單樣式優化：加入隱形橋樑防止滑鼠移開時關閉 */
     .dropdown { position: relative; display: inline-block; }
     .dropdown::after { content: ''; position: absolute; width: 100%; height: 20px; bottom: -20px; left: 0; z-index: 10; }
     .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: var(--bg-primary); min-width: 160px; box-shadow: var(--shadow-lg); border-radius: 8px; z-index: 200; border: 1px solid var(--border); overflow: hidden; margin-top: 8px; }
@@ -61,7 +60,6 @@
     .step-card { background: var(--bg-secondary); border-left: 4px solid var(--primary); border-radius: 8px; padding: 1.5rem 1.5rem 1.5rem 2rem; margin-bottom: 1.25rem; position: relative; }
     .step-number { position: absolute; left: -18px; top: 1.5rem; width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: var(--shadow-md); }
     
-    /* AI 標籤顏色系統 */
     .ai-label { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 600; margin-bottom: 0.75rem; margin-right: 0.5rem; text-decoration: none; }
     .ai-label.claude { background: rgba(99,102,241,0.2); color: #4f46e5; }
     .ai-label.gemini { background: rgba(34,197,94,0.2); color: #22c55e; }
@@ -79,6 +77,11 @@
     .btn-copy:hover { background: var(--primary-dark); }
     .btn-open { background: rgba(37,99,235,0.1); color: var(--primary); text-decoration: none; }
     .btn-open:hover { background: rgba(37,99,235,0.2); }
+    
+    /* 實作案例按鈕 */
+    .btn-case-study { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; width: 100%; justify-content: center; }
+    .btn-case-study:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+
     .tip-box { background: rgba(16,185,129,0.1); border-left: 4px solid #10b981; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
     .faq-box { background: rgba(249,115,22,0.08); border-left: 4px solid #f97316; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
     .faq-title { font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
@@ -86,12 +89,15 @@
     .faq-item:last-child { border: none; }
     .faq-q { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.25rem; }
     .faq-a { font-size: 0.85rem; margin-left: 1.25rem; font-style: italic; }
+    
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
     .modal.active { display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-content { background: var(--bg-primary); border-radius: 12px; padding: 2rem; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
-    .modal-close { float: right; font-size: 1.5rem; font-weight: bold; cursor: pointer; background: none; border: none; color: var(--text-tertiary); padding: 0; }
+    .modal-content { background: var(--bg-primary); border-radius: 12px; padding: 2rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); position: relative; }
+    .modal-content.large { max-width: 800px; }
+    .modal-close { position: absolute; right: 1.5rem; top: 1.5rem; font-size: 1.5rem; font-weight: bold; cursor: pointer; background: none; border: none; color: var(--text-tertiary); padding: 0; line-height: 1; }
     .modal-close:hover { color: var(--text-primary); }
-    .modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; clear: both; }
+    .modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-right: 2rem; }
+    
     .notification { position: fixed; bottom: 2rem; right: 2rem; background: #10b981; color: white; padding: 1rem 1.5rem; border-radius: 8px; z-index: 999; animation: slideUp 0.3s ease; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
     @media (max-width: 768px) {
@@ -106,7 +112,6 @@
     <div class="header-content">
       <div class="logo"><i class="fas fa-graduation-cap"></i><span>Edubot v3.0</span></div>
       <div class="nav-buttons">
-        
         <div class="dropdown">
           <button class="nav-btn">
             <i class="fas fa-link"></i> AI 工具選單 <i class="fas fa-caret-down" style="margin-left:2px;"></i>
@@ -121,7 +126,6 @@
             <a href="https://www.perplexity.ai" target="_blank">🔍 Perplexity</a>
           </div>
         </div>
-
         <button class="nav-btn" onclick="startOnboarding()"><i class="fas fa-book"></i> 新手引導</button>
         <button class="nav-btn" onclick="openAboutModal()"><i class="fas fa-info-circle"></i> 關於</button>
       </div>
@@ -182,8 +186,15 @@
     </div>
   </div>
 
+  <div id="caseStudyModal" class="modal">
+    <div class="modal-content large">
+      <button class="modal-close" onclick="closeCaseStudyModal()">×</button>
+      <h2 class="modal-title" id="caseStudyTitle">實作案例</h2>
+      <div id="caseStudyContent" style="white-space: pre-wrap; line-height: 1.8; color: var(--text-secondary); font-size: 0.95rem;"></div>
+    </div>
+  </div>
+
   <script>
-    // API 網址
     const API_URL = "https://script.google.com/macros/s/AKfycbxiuGkc8M7e4I4K75bqN9WPgFBxaVQgPv2ARLsHsko-NgrrtBeA-h7O6vPa2TYAJI4/exec";
     
     let allCategories = [];
@@ -255,7 +266,6 @@
       renderSteps();
     }
 
-    // 取得 AI 網址的對應表
     function getAIUrl(aiName) {
       const urls = { 
         'claude': 'https://claude.ai', 
@@ -279,18 +289,16 @@
         let aiName = rawAi;
         let customUrl = null;
 
-        // 處理 名稱|網址 格式
         if (rawAi.includes('|')) {
           const parts = rawAi.split('|');
           aiName = parts[0].trim();
           customUrl = parts[1].trim();
         }
 
-        // 判斷是否為「人工」身分
         const lowerName = aiName.toLowerCase();
         const isUser = (lowerName === 'user' || lowerName === '人工');
         
-        let aiColor = 'claude'; // 預設顏色
+        let aiColor = 'claude';
         if (isUser) {
           aiColor = 'user';
           aiName = '人工';
@@ -300,23 +308,18 @@
           aiColor = 'chatgpt';
         }
 
-        // 決定網址
         const finalUrl = isUser ? null : (customUrl ? customUrl : getAIUrl(aiName));
 
-        // 開始生成卡片 HTML
         html += `<div class="step-card"><div class="step-number">${step.num}</div>`;
 
         if (isUser) {
-          // 人工步驟：僅顯示標籤，不生成 <a> 連結
           html += `<span class="ai-label user">👤 ${aiName}</span>`;
         } else {
-          // AI 步驟：生成超連結標籤
           html += `<a class="ai-label ${aiColor}" href="${finalUrl}" target="_blank">${aiName} <i class="fas fa-external-link-alt"></i></a>`;
         }
 
         html += `<div class="step-title">${step.title}</div><div class="step-desc">${step.desc}</div>`;
 
-        // 處理內嵌工具按鈕 (如 Word 轉簡報案例)
         if (step.has_tool_choice && step.tools) {
           html += `<div style="margin-top: 1rem; padding: 1rem; background: rgba(37,99,235,0.05); border-radius: 8px; border: 1px solid rgba(37,99,235,0.2);">`;
           html += `<div style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">選擇簡報生成工具：</div>`;
@@ -326,18 +329,25 @@
           html += `</div>`;
         }
 
-        // 處理 Prompt 區塊
         if (step.prompt) {
           html += `<div class="prompt-box"><div class="prompt-label"><i class="fas fa-wand-magic-sparkles"></i> Prompt</div><div class="prompt-field">${step.prompt}</div>`;
           html += `<div class="prompt-actions"><button class="btn-small btn-copy" onclick="copyText(\`${step.prompt.replace(/`/g, '\\`')}\`)"><i class="fas fa-copy"></i> 複製</button>`;
           if (!isUser) {
-            // 只有 AI 步驟才顯示跳轉按鈕
             html += `<a href="${finalUrl}" target="_blank" class="btn-small btn-open"><i class="fas fa-arrow-up-right-from-square"></i> 在 ${aiName} 開啟</a>`;
           }
           html += `</div></div>`;
         }
         html += `</div>`;
       });
+      
+      // 生成實作案例按鈕 (如果有的話)
+      if (scenario.caseStudy && scenario.caseStudy.trim() !== '') {
+         // 把內容轉義存放在屬性中，避免引號衝突
+         const safeCaseStudy = scenario.caseStudy.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\n/g, '\\n');
+         html += `<button class="btn-case-study" onclick="openCaseStudyModal('${scenario.name}', '${safeCaseStudy}')">
+                    <i class="fas fa-book-open"></i> ${scenario.name} - 實作案例
+                  </button>`;
+      }
 
       container.innerHTML = html;
       
@@ -372,24 +382,26 @@
       });
     }
 
-    function openToolPrompt(toolName, prompt) {
-      alert(`📋 ${toolName} 的 Prompt 已複製到剪貼簿，請貼到 ${toolName} 中使用。\n\n${prompt}`);
-      copyText(prompt);
-    }
-
+    // Modal 控制
     function startOnboarding() { document.getElementById('onboardingModal').classList.add('active'); }
     function closeOnboarding() { document.getElementById('onboardingModal').classList.remove('active'); }
     function openAboutModal() { document.getElementById('aboutModal').classList.add('active'); }
     function closeAboutModal() { document.getElementById('aboutModal').classList.remove('active'); }
+    
+    function openCaseStudyModal(title, content) {
+      document.getElementById('caseStudyTitle').textContent = title + ' - 實作案例';
+      document.getElementById('caseStudyContent').innerHTML = content.replace(/\\n/g, '<br>');
+      document.getElementById('caseStudyModal').classList.add('active');
+    }
+    function closeCaseStudyModal() { document.getElementById('caseStudyModal').classList.remove('active'); }
 
     window.onclick = function(event) {
-      ['onboardingModal', 'aboutModal'].forEach(id => {
+      ['onboardingModal', 'aboutModal', 'caseStudyModal'].forEach(id => {
         const modal = document.getElementById(id);
         if (event.target === modal) modal.classList.remove('active');
       });
     };
 
-    // 啟動應用程式
     init();
   </script>
 </body>
